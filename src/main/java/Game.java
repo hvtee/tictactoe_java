@@ -20,12 +20,12 @@ public class Game {
         while (true) {
             humanTurn();
             printField();
-            if (gameCheck(DOT_HUMAN, "You won!"))
+            if (gameCheck(DOT_HUMAN))
                 break;
 
             aiTurn();
             printField();
-            if (gameCheck(DOT_AI, "Computer won!"))
+            if (gameCheck(DOT_AI))
                 break;
         }
     }
@@ -89,9 +89,9 @@ public class Game {
         field[x][y] = DOT_AI;
     }
 
-    private static boolean gameCheck(char symbol, String message) {
-        if (checkWin(symbol)) {
-            System.out.println(message);
+    private static boolean gameCheck(char symbol) {
+        if (checkWin()) {
+            System.out.println(symbol + " won!");
             return true;
         }
         if (checkDraw()) {
@@ -107,25 +107,39 @@ public class Game {
                 if (isCellEmpty(x, y)) return false;
             }
         }
-
         return true;
     }
 
-    private static boolean checkWin(char symbol) {
-        // Проверка по трем горизонталям
-        if (field[0][0] == symbol && field[0][1] == symbol && field[0][2] == symbol) return true;
-        if (field[1][0] == symbol && field[1][1] == symbol && field[1][2] == symbol) return true;
-        if (field[2][0] == symbol && field[2][1] == symbol && field[2][2] == symbol) return true;
+    private static boolean checkWin() {
+        // Проверка горизонталей
+        for (int x = 0; x < SIZE_X; x++) {
+            if (checkLine(x, 0, 0, 1)) return true;
+        }
 
-        // Проверка по диагоналям
-        if (field[0][0] == symbol && field[1][1] == symbol && field[2][2] == symbol) return true;
-        if (field[0][2] == symbol && field[1][1] == symbol && field[2][0] == symbol) return true;
+        // Проверка вертикалей
+        for (int y = 0; y < SIZE_Y; y++) {
+            if (checkLine(0, y, 1, 0)) return true;
+        }
 
-        // Проверка по трем вертикалям
-        if (field[0][0] == symbol && field[1][0] == symbol && field[2][0] == symbol) return true;
-        if (field[0][1] == symbol && field[1][1] == symbol && field[2][1] == symbol) return true;
-        if (field[0][2] == symbol && field[1][2] == symbol && field[2][2] == symbol) return true;
+        // Проверка главной диагонали
+        if (checkLine(0, 0, 1, 1)) return true;
+
+        // Проверка побочной диагонали
+        if (checkLine(0, SIZE_Y - 1, 1, -1)) return true;
 
         return false;
+    }
+
+    private static boolean checkLine(int startX, int startY, int deltaX, int deltaY) {
+        char symbol = field[startX][startY];
+        if (symbol == DOT_EMPTY) return false;
+
+        for (int i = 0; i <= SIZE_X - 1; i++) {
+            int x = startX + deltaX * i;
+            int y = startY + deltaY * i;
+            if (field[x][y] != symbol) return false;
+        }
+
+        return true;
     }
 }
